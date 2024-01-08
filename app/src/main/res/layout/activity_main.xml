@@ -84,6 +84,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
+            android:thumbTint="@color/deepSkyBlue"
+            android:progressTint="@color/black"
+            android:progressBackgroundTint="@color/whiteSmoke"
             app:layout_constraintLeft_toLeftOf="@id/musicImage"
             app:layout_constraintRight_toRightOf="@id/musicImage"
             app:layout_constraintTop_toBottomOf="@id/musicTitle" />

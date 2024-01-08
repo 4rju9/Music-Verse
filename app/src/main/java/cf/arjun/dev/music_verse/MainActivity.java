@@ -24,7 +24,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,10 +56,10 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         }
 
         makeFullScreen();
-        checkRuntimePermission();
-        makeServiceCall();
         setupUIViews();
-        initButtons();
+        if (checkRuntimePermission()) {
+            makeServiceCall();
+        }
 
     }
 
@@ -175,7 +174,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     private static void createPlayer() {
         if (musicService != null) {
 
-            if (musicService.musicList.size() <= 0) return;
+            if (musicService.musicList.size() == 0) return;
             String name = musicService.musicList.get(musicService.currentIndex).getTitle();
             if (updateSeekbar != null) updateSeekbar.interrupt();
             setupCurrentMusic(name);
@@ -329,6 +328,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         MusicService.MyBinder binder = (MusicService.MyBinder) service;
         musicService = binder.currentService();
         setupRecyclerView();
+        initButtons();
         if (index != -1) {
             if (musicService != null) {
                 initPlayer(index, false);
@@ -352,13 +352,16 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         }
     }
 
-    private void checkRuntimePermission () {
+    private boolean checkRuntimePermission () {
 
         if (ActivityCompat.checkSelfPermission(this,
                 android.Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             requestRuntimePermission();
+            return false;
         }
+
+        return true;
 
     }
 
@@ -367,9 +370,11 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (requestCode == 7) {
-            if (grantResults.length >= 1 && grantResults[0] == PackageManager.PERMISSION_DENIED) {
-                requestRuntimePermission();
+            if (grantResults.length >= 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                makeServiceCall();
             }
+        } else {
+            requestRuntimePermission();
         }
 
     }
