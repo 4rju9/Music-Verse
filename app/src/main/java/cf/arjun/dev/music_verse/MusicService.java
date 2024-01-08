@@ -79,22 +79,29 @@ public class MusicService extends Service {
             return;
         }
 
-        if (!(Build.VERSION.SDK_INT < Build.VERSION_CODES.S)) return;
+        // if (!(Build.VERSION.SDK_INT < Build.VERSION_CODES.S)) return;
 
         MusicModel model = musicList.get(currentIndex);
+        int flags;
+
+        if (Build.VERSION.SDK_INT < 31) {
+            flags = PendingIntent.FLAG_UPDATE_CURRENT;
+        } else {
+            flags = PendingIntent.FLAG_MUTABLE;
+        }
 
         // TODO: Create intents for notification actions
         Intent prevIntent = new Intent(getBaseContext(), NotificationReceiver.class).setAction(MyApplication.PREV);
-        PendingIntent prevPendingIntent = PendingIntent.getBroadcast(getBaseContext(), 0, prevIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent prevPendingIntent = PendingIntent.getBroadcast(getBaseContext(), 0, prevIntent, flags);
 
         Intent playIntent = new Intent(getBaseContext(), NotificationReceiver.class).setAction(MyApplication.PLAY);
-        PendingIntent playPendingIntent = PendingIntent.getBroadcast(getBaseContext(), 0, playIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent playPendingIntent = PendingIntent.getBroadcast(getBaseContext(), 0, playIntent, flags);
 
         Intent nextIntent = new Intent(getBaseContext(), NotificationReceiver.class).setAction(MyApplication.NEXT);
-        PendingIntent nextPendingIntent = PendingIntent.getBroadcast(getBaseContext(), 0, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent nextPendingIntent = PendingIntent.getBroadcast(getBaseContext(), 0, nextIntent, flags);
 
         Intent exitIntent = new Intent(getBaseContext(), NotificationReceiver.class).setAction(MyApplication.EXIT);
-        PendingIntent exitPendingIntent = PendingIntent.getBroadcast(getBaseContext(), 0, exitIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent exitPendingIntent = PendingIntent.getBroadcast(getBaseContext(), 0, exitIntent, flags);
 
         // TODO: show the notification of current music playing.
         Notification notification = new NotificationCompat.Builder(getBaseContext(), MyApplication.CHANNEL_ID)

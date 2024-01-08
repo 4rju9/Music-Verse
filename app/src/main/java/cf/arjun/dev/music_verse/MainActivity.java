@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.MediaStore;
@@ -55,9 +56,9 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
             }
         }
 
-        makeServiceCall();
         makeFullScreen();
-        getPermission();
+        checkRuntimePermission();
+        makeServiceCall();
         setupUIViews();
         initButtons();
 
@@ -173,6 +174,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
     private static void createPlayer() {
         if (musicService != null) {
+
+            if (musicService.musicList.size() <= 0) return;
             String name = musicService.musicList.get(musicService.currentIndex).getTitle();
             if (updateSeekbar != null) updateSeekbar.interrupt();
             setupCurrentMusic(name);
@@ -198,16 +201,16 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                         musicService.mediaPlayer.seekTo(progress);
                         seekbar.setProgress(progress);
                         initPlayButton(true);
-			initSeekbarUpdater(true);
+                        initSeekbarUpdater(true);
                     }
 
                 }
             });
 
 
-	    // removed seekbar code from here. {}
+            // removed seekbar code from here. {}
 
-	    initSeekbarUpdater(false);
+            initSeekbarUpdater(false);
 
         }
     }
@@ -339,14 +342,22 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         musicService = null;
     }
 
-    private void getPermission () {
+    private void requestRuntimePermission () {
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE}, 7);
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.READ_MEDIA_AUDIO}, 7);
+        }
+    }
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+    private void checkRuntimePermission () {
+
+        if (ActivityCompat.checkSelfPermission(this,
+                android.Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
-
-            // Request permission
-            String[] permissionArray = {Manifest.permission.READ_EXTERNAL_STORAGE};
-            ActivityCompat.requestPermissions(this, permissionArray, 7);
+            requestRuntimePermission();
         }
 
     }
@@ -356,11 +367,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (requestCode == 7) {
-            if (grantResults.length >= 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(MainActivity.this, "Permission Granted!", Toast.LENGTH_SHORT).show();
-            } else {
-                String[] permissionArray = {Manifest.permission.READ_EXTERNAL_STORAGE};
-                ActivityCompat.requestPermissions(this, permissionArray, 7);
+            if (grantResults.length >= 1 && grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                requestRuntimePermission();
             }
         }
 
