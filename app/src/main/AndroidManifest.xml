@@ -28,6 +28,7 @@
         <service
             android:name=".MusicService"
             android:enabled="true"
+            android:foregroundServiceType="mediaPlayback"
             android:exported="true" />
 
         <receiver
@@ -41,5 +42,6 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
 
 </manifest>

@@ -1,18 +1,23 @@
 package cf.arjun.dev.music_verse;
 
+import android.Manifest;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.pm.ServiceInfo;
 import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.media.session.MediaSessionCompat;
+
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.ServiceCompat;
+
 import java.util.ArrayList;
 import java.util.List;
-import androidx.core.app.NotificationCompat;
 
 public class MusicService extends Service {
 
@@ -79,8 +84,6 @@ public class MusicService extends Service {
             return;
         }
 
-        // if (!(Build.VERSION.SDK_INT < Build.VERSION_CODES.S)) return;
-
         MusicModel model = musicList.get(currentIndex);
         int flags;
 
@@ -119,7 +122,11 @@ public class MusicService extends Service {
                 .addAction(R.drawable.ic_close, "Exit", exitPendingIntent)
                 .build();
 
-        startForeground(7, notification);
+        if (Build.VERSION.SDK_INT >= 34) {
+            startForeground(7, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
+        } else {
+            startForeground(7, notification);
+        }
 
     }
 
